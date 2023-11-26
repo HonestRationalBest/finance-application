@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { Income } from "../models/Income";
 import { asyncErrorHandling } from "../middlewares/asyncErrorHandling";
 import { IncomeCategory } from "../models/IncomeCategory";
+import { authenticateToken } from "../middlewares/authenticateToken";
 
 const router = Router();
 
@@ -15,6 +16,7 @@ const updateIncomeCategorySum = async (categoryId: number, amount: number) => {
 
 router.post(
   "/",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const { amount, incomeCategoryId } = req.body;
     const income = await Income.create(req.body);
@@ -25,6 +27,7 @@ router.post(
 
 router.get(
   "/",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const incomes = await Income.findAll();
     res.json(incomes);
@@ -33,6 +36,7 @@ router.get(
 
 router.get(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const income = await Income.findByPk(req.params.id);
     if (income) {
@@ -45,6 +49,7 @@ router.get(
 
 router.put(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const income = await Income.findByPk(req.params.id);
     if (!income) {
@@ -65,6 +70,7 @@ router.put(
 
 router.delete(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const income = await Income.findByPk(req.params.id);
     if (!income) {

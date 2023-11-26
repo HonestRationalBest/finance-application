@@ -2,11 +2,13 @@ import { Router, Request, Response } from "express";
 
 import { ExpenseCategory } from "../models/ExpenseCategory";
 import { asyncErrorHandling } from "../middlewares/asyncErrorHandling";
+import { authenticateToken } from "../middlewares/authenticateToken";
 
 const router = Router();
 
 router.post(
   "/",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expenseCategory = await ExpenseCategory.create(req.body);
     res.status(201).json(expenseCategory);
@@ -15,6 +17,7 @@ router.post(
 
 router.get(
   "/",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expenseCategories = await ExpenseCategory.findAll();
     res.json(expenseCategories);
@@ -23,6 +26,7 @@ router.get(
 
 router.get(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expenseCategory = await ExpenseCategory.findByPk(req.params.id);
     if (expenseCategory) {
@@ -35,6 +39,7 @@ router.get(
 
 router.put(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expenseCategory = await ExpenseCategory.findByPk(req.params.id);
     if (expenseCategory) {
@@ -48,6 +53,7 @@ router.put(
 
 router.delete(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expenseCategory = await ExpenseCategory.findByPk(req.params.id);
     if (expenseCategory) {

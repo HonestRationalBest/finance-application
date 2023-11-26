@@ -3,6 +3,7 @@ import { Router, Request, Response } from "express";
 import { Expense } from "../models/Expense";
 import { asyncErrorHandling } from "../middlewares/asyncErrorHandling";
 import { ExpenseCategory } from "../models/ExpenseCategory";
+import { authenticateToken } from "../middlewares/authenticateToken";
 
 const router = Router();
 
@@ -16,6 +17,7 @@ const updateExpenseCategorySum = async (categoryId: number, amount: number) => {
 
 router.post(
   "/",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const { amount, expenseCategoryId } = req.body;
     const expense = await Expense.create(req.body);
@@ -26,6 +28,7 @@ router.post(
 
 router.get(
   "/",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expenses = await Expense.findAll();
     res.json(expenses);
@@ -34,6 +37,7 @@ router.get(
 
 router.get(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expense = await Expense.findByPk(req.params.id);
     if (expense) {
@@ -46,6 +50,7 @@ router.get(
 
 router.put(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expense = await Expense.findByPk(req.params.id);
     if (!expense) {
@@ -69,6 +74,7 @@ router.put(
 
 router.delete(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const expense = await Expense.findByPk(req.params.id);
     if (!expense) {

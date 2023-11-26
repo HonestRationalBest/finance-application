@@ -1,8 +1,10 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 import { User } from "../models/User";
 import { asyncErrorHandling } from "../middlewares/asyncErrorHandling";
+import { authenticateToken } from "../middlewares/authenticateToken";
 
 const router = Router();
 
@@ -28,6 +30,7 @@ router.post(
 
 router.get(
   "/",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const users = await User.findAll({
       attributes: { exclude: ["password"] },
@@ -38,6 +41,7 @@ router.get(
 
 router.get(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const user = await User.findByPk(req.params.id, {
       attributes: { exclude: ["password"] },
@@ -53,6 +57,7 @@ router.get(
 
 router.put(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const user = await User.findByPk(req.params.id);
 
@@ -77,6 +82,7 @@ router.put(
 
 router.delete(
   "/:id",
+  authenticateToken,
   asyncErrorHandling(async (req: Request, res: Response) => {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -85,6 +91,27 @@ router.delete(
     } else {
       res.status(404).json({ error: "User not found" });
     }
+  })
+);
+
+router.post(
+  "/login",
+  asyncErrorHandling(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Incorrect password" });
+    }
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: "1d",
+    });
+    res.json({ token });
   })
 );
 
