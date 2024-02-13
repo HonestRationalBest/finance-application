@@ -35,19 +35,6 @@ router.get(
   })
 );
 
-router.get(
-  "/:id",
-  authenticateToken,
-  asyncErrorHandling(async (req: Request, res: Response) => {
-    const expense = await Expense.findByPk(req.params.id);
-    if (expense) {
-      res.json(expense);
-    } else {
-      res.status(404).json({ error: "Expense not found" });
-    }
-  })
-);
-
 router.put(
   "/:id",
   authenticateToken,
@@ -85,6 +72,29 @@ router.delete(
 
     await expense.destroy();
     res.status(204).send();
+  })
+);
+
+router.get(
+  "/:categoryId",
+  authenticateToken,
+  asyncErrorHandling(async (req: Request, res: Response) => {
+    const categoryId = parseInt(req.params.categoryId);
+    if (isNaN(categoryId)) {
+      return res.status(400).json({ error: "Invalid category ID" });
+    }
+
+    const expenses = await Expense.findAll({
+      where: { expenseCategoryId: categoryId },
+    });
+
+    console.log(categoryId);
+
+    if (expenses.length > 0) {
+      res.json(expenses);
+    } else {
+      res.status(404).json({ error: "No expenses found for this category" });
+    }
   })
 );
 

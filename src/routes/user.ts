@@ -28,6 +28,27 @@ router.post(
   })
 );
 
+router.post(
+  "/login",
+  asyncErrorHandling(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Incorrect password" });
+    }
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: "1d",
+    });
+    res.json({ token, userId: user.id });
+  })
+);
+
 router.get(
   "/",
   authenticateToken,
@@ -91,27 +112,6 @@ router.delete(
     } else {
       res.status(404).json({ error: "User not found" });
     }
-  })
-);
-
-router.post(
-  "/login",
-  asyncErrorHandling(async (req: Request, res: Response) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ error: "User not found" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Incorrect password" });
-    }
-
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
-      expiresIn: "1d",
-    });
-    res.json({ token });
   })
 );
 

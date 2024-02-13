@@ -34,19 +34,6 @@ router.get(
   })
 );
 
-router.get(
-  "/:id",
-  authenticateToken,
-  asyncErrorHandling(async (req: Request, res: Response) => {
-    const income = await Income.findByPk(req.params.id);
-    if (income) {
-      res.json(income);
-    } else {
-      res.status(404).json({ error: "Income not found" });
-    }
-  })
-);
-
 router.put(
   "/:id",
   authenticateToken,
@@ -81,6 +68,27 @@ router.delete(
 
     await income.destroy();
     res.status(204).send();
+  })
+);
+
+router.get(
+  "/:categoryId",
+  authenticateToken,
+  asyncErrorHandling(async (req: Request, res: Response) => {
+    const categoryId = parseInt(req.params.categoryId);
+    if (isNaN(categoryId)) {
+      return res.status(400).json({ error: "Invalid category ID" });
+    }
+
+    const incomes = await Income.findAll({
+      where: { incomeCategoryId: categoryId },
+    });
+
+    if (incomes) {
+      res.json(incomes);
+    } else {
+      res.status(404).json({ error: "No incomes found for this category" });
+    }
   })
 );
 

@@ -17,6 +17,7 @@ import incomeRoutes from "./routes/incomes";
 import expenseRoutes from "./routes/expenses";
 import transactionRoutes from "./routes/transactions";
 import reminderRoutes from "./routes/reminders";
+import categoryRoutes from './routes/categories';
 
 import { User } from "./models/User";
 import { IncomeCategory } from "./models/IncomeCategory";
@@ -52,6 +53,7 @@ app.use("/incomes", incomeRoutes);
 app.use("/expenses", expenseRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/reminders", reminderRoutes);
+app.use('/categories', categoryRoutes);
 
 User.hasMany(IncomeCategory, { foreignKey: "userId" });
 IncomeCategory.belongsTo(User, { foreignKey: "userId" });
